@@ -10,9 +10,12 @@ class estudiante extends Model
     protected $fillable = ['nombre','segundo_nombre','apellido_paterno','apellido_materno','fecha_nacimiento','correo','telefono','genero','estado','matricula'];
     protected $guarded = [];
 
-    public function recorrido_academico()
+    public function semestres()
     {
-        return $this->hasMany(recorrido_academico::class);
+        return $this->belongsToMany(semestre::class,'semestres_estudiantes','estudiantes_id','semestres_id');
     }
-    
+    public function carreras()
+    {
+        return $this->belongsToMany(carrera::class,'carrera_estudiantes','estudiantes_id','carreras_id');
+    }
 }

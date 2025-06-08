@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\semestre;
 use App\Models\carrera;
+use App\Models\semestre;
+use App\Models\recorrido_academico;
+use App\Models\estudiante;
+use App\Models\materia;
+use App\Models\sección;
+use Illuminate\Http\Request;
 
 class semestresController extends Controller
 {
-    public function index()
+
+    public function create(carrera $carrera)
     {
-        $semestres = semestre::all();
-        return view('semestres.index', compact('semestres'));
-    }
-    public function create()
-    {
-        return view('semestres.create');
+        return view('semestres.create', compact('carrera'));
     }
 
     public function store(Request $request)
@@ -28,12 +28,13 @@ class semestresController extends Controller
             'nombre' => $request->nombre,
         ]);
 
-        return redirect()->route('carreras.show', $carrera->id)->with('success', 'Semestre creado exitosamente');
+        return redirect()->route('associateSemestresForm', $request->carrera_id)->with('success', 'Semestre creado exitosamente');
     }
+
     public function associateSemestresForm(carrera $carrera)
     {
-        $semestres = semestre::all(); // Obtener todos los semestres disponibles
-        $carreraSemestres = $carrera->semestres->pluck('id')->toArray(); // IDs de semestres ya asociados
+        $semestres = semestre::all();  // Obtener todos los semestres disponibles
+        $carreraSemestres = $carrera->semestres->pluck('id')->toArray();  // IDs de semestres ya asociados
 
         return view('semestres.associate_semestres', compact('carrera', 'semestres', 'carreraSemestres'));
     }
@@ -49,7 +50,7 @@ class semestresController extends Controller
     {
         $request->validate([
             'semestres' => 'nullable|array',
-            'semestres.*' => 'exists:semestres,id', // Asegura que los IDs existen en la tabla semestres
+            'semestres.*' => 'exists:semestres,id',  // Asegura que los IDs existen en la tabla semestres
         ]);
 
         // Sincroniza los semestres. Esto adjuntará los nuevos, desvinculará los eliminados
@@ -57,5 +58,80 @@ class semestresController extends Controller
         $carrera->semestres()->sync($request->input('semestres', []));
 
         return redirect()->route('carreras.show', $carrera->id)->with('success', 'Semestres asociados exitosamente.');
+    }
+
+    public function unifiedAction(Request $request, carrera $carrera)
+    {
+        $action = $request->input('action_type');
+        $ids = $request->input('semestres', []);
+
+        if ($action === 'associate') {
+            // Asociar los semestres seleccionados a la carrera
+            $carrera->semestres()->sync($ids);
+            return back()->with('success', 'Semestres asociados correctamente.');
+        } elseif ($action === 'delete') {
+            // Eliminar los semestres seleccionados
+            if (!empty($ids)) {
+                semestre::whereIn('id', $ids)->delete();
+                return back()->with('success', 'Semestres eliminados correctamente.');
+            }
+            return back()->with('error', 'No seleccionaste ningún semestre para eliminar.');
+        } else {
+            return back()->with('error', 'Acción no reconocida.');
+        }
+    }
+
+    public function show($id)
+    {
+        $semestre = semestre::findOrFail($id);
+        $recorridos = recorrido_academico::with(['estudiante', 'materia', 'seccion'])->where('semestres_id', $id)->get();
+        $estudiantes = estudiante::all();
+        $materias = materia::all();
+        // Si tienes secciones:
+        $secciones = sección::all();
+
+        return view('semestres.show', compact('semestre', 'recorridos', 'estudiantes', 'materias', 'secciones'));
+    }
+
+    public function inscribir(Request $request, $semestreId)
+    {
+        $request->validate([
+            'estudiantes_id' => 'required|exists:estudiantes,id',
+            'materias_id' => 'required|exists:materias,id',
+            // Valida sección si corresponde
+        ]);
+        recorido_academico::create([
+            'estudiantes_id' => $request->estudiantes_id,
+            'materias_id' => $request->materias_id,
+            'semestres_id' => $semestreId,
+            'secciones_id' => $request->secciones_id ?? null,
+            'calificacion' => null,
+            'estado' => 'inscrito',
+        ]);
+        return back()->with('success', 'Inscripción realizada correctamente');
+    }
+
+    public function destroyInscripcion($recorridoId)
+    {
+        recorido_academico::findOrFail($recorridoId)->delete();
+        return back()->with('success', 'Inscripción eliminada');
+    }
+
+    public function massDestroy(Request $request)
+    {
+        $ids = $request->input('semestres_to_delete', []);
+        if (!empty($ids)) {
+            semestre::whereIn('id', $ids)->delete();
+            return back()->with('success', 'Semestres eliminados exitosamente.');
+        }
+        return back()->with('error', 'No seleccionaste ningún semestre para eliminar.');
+    }
+
+    public function destroy($id)
+    {
+        $semestre = semestre::findOrFail($id);
+        $semestre->delete();
+
+        return redirect()->route('associateSemestresForm', $semestre->carrera_id)->with('success', 'Semestre eliminado exitosamente.');
     }
 }

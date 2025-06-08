@@ -18,4 +18,8 @@ class carrera extends Model
     {
         return $this->belongsToMany(semestre::class,'carrera_semestres','carreras_id','semestres_id');
     }
+    public function estudiantes()
+    {
+        return $this->belongsToMany(estudiante::class,'carrera_estudiantes','carreras_id','estudiantes_id');
+    }
 }

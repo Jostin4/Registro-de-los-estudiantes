@@ -9,7 +9,4 @@
         <span class="text-gray-600">|</span>
         <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Contáctanos</a>
     </div>
-    <div class="mt-4 text-xs text-gray-500">
-        Hecho con ❤️ para una experiencia increíble.
-    </div>
 </div>

@@ -4,7 +4,7 @@
         <svg class="h-8 w-8 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
         </svg>
-        <span class="font-bold text-xl tracking-tight">Mi App Dashboard</span>
+        <span class="font-bold text-xl tracking-tight">Registro de Estudiantes</span>
     </div>
 
     <!-- Contenedor de Enlaces de Navegación (visible en desktop, oculto en móvil por defecto) -->
@@ -30,7 +30,7 @@
     <!-- Enlaces de Usuario (derecha) -->
     <div class="flex items-center space-x-4 ml-auto">
         <!-- Puedes añadir un nombre de usuario o avatar aquí -->
-        <span class="text-gray-700 font-medium hidden sm:block">Hola, Usuario!</span>
+        <span class="text-gray-700 font-medium hidden sm:block">Hola, {{ $user->name ?? 'Usuario' }}!</span>
         <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
            class="bg-red-500 text-white py-2 px-4 rounded-md font-semibold hover:bg-red-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
             Cerrar Sesión

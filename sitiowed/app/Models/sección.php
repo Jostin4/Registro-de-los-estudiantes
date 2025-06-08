@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+
+use App\Models\recorrido_academico;
+use App\Models\materia;
 use Illuminate\Database\Eloquent\Model;
 
 class sección extends Model

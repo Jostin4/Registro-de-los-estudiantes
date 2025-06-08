@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\carrera;
-use App\Models\recorido_academico;
+use App\Models\estudiante;
 use Illuminate\Http\Request;
 
 class carrerasController extends Controller
@@ -53,8 +53,20 @@ class carrerasController extends Controller
 
     public function show($id)
     {
-        $carrera = carrera::findOrFail($id);
-        return view('carreras.show', compact('carrera'));
+        $carrera = carrera::with('semestres', 'estudiantes')->findOrFail($id);
+        // Solo muestra los estudiantes que aún NO están inscritos
+        $estudiantesDisponibles = estudiante::whereNotIn('id', $carrera->estudiantes->pluck('id'))->get();
+        return view('carreras.show', compact('carrera', 'estudiantesDisponibles'));
+    }
+    
+    public function addEstudiante(Request $request, $carreraId)
+    {
+        $request->validate([
+            'estudiante_id' => 'required|exists:estudiantes,id',
+        ]);
+        $carrera = carrera::findOrFail($carreraId);
+        $carrera->estudiantes()->attach($request->estudiante_id);
+        return redirect()->route('carreras.show', $carrera->id)->with('success', 'Estudiante añadido correctamente.');
     }
 
     public function destroy($id)

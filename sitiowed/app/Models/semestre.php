@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\recorrido_academico;
 use Illuminate\Database\Eloquent\Model;
 
 class semestre extends Model
@@ -18,8 +19,8 @@ class semestre extends Model
     {
         return $this->belongsToMany(carrera::class,'carrera_semestres','semestres_id','carreras_id');
     }
-    public function recorrido_academico()
+   public function estudiantes()
     {
-        return $this->hasMany(recorrido_academico::class);
+        return $this->belongsToMany(estudiante::class,'semestres_estudiantes','semestres_id','estudiantes_id');
     }
 }
