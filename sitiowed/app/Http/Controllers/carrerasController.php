@@ -76,4 +76,10 @@ class carrerasController extends Controller
 
         return redirect()->route('carreras.index')->with('success', 'Carrera eliminada exitosamente');
     }
+    public function removeEstudiante($carreraId, $estudianteId)
+    {
+        $carrera = carrera::findOrFail($carreraId);
+        $carrera->estudiantes()->detach($estudianteId);
+        return redirect()->route('carreras.show', $carrera->id)->with('success', 'Estudiante removido correctamente.');
+    }
 }

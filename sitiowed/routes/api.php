@@ -19,6 +19,7 @@ Route::delete('/recorridos/{recorrido}', [semestresController::class, 'destroyIn
 Route::Resource('secciones', seccionesController::class);
 Route::Resource('carreras', carrerasController::class);
 Route::Resource('estudiantes', estudiantesController::class);
+Route::delete('/carreras/{carrera}/remove-estudiante/{estudiante}', [carrerasController::class, 'removeEstudiante'])->name('carreras.removeEstudiante');
 Route::post('/carreras/{carrera}/add-estudiante', [carrerasController::class, 'addEstudiante'])->name('carreras.addEstudiante');
 Route::get('/{carrera}/associate-semestres', [semestresController::class, 'associateSemestresForm'])->name('associateSemestresForm');
 // Nueva ruta para procesar la asociación (usará el método POST)
