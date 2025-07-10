@@ -14,8 +14,8 @@ class Nota extends Model
     protected $fillable = [
         'nota',
         'comentario',
-        'evaluacions_id',
-        'materia_estudiante_semestre_id',
+        'evaluacion_id',
+        'estudiante_id',
         'fecha_registro',
     ];
 
@@ -29,30 +29,15 @@ class Nota extends Model
      */
     public function evaluacion()
     {
-        return $this->belongsTo(Evaluacion::class, 'evaluacions_id');
+        return $this->belongsTo(Evaluacion::class, 'evaluacion_id');
     }
 
     /**
-     * Relación con materia_estudiante_semestre
-     */
-    public function materiaEstudianteSemestre()
-    {
-        return $this->belongsTo(MateriaEstudianteSemestre::class, 'materia_estudiante_semestre_id');
-    }
-
-    /**
-     * Relación con estudiante a través de materia_estudiante_semestre
+     * Relación con estudiante
      */
     public function estudiante()
     {
-        return $this->hasOneThrough(
-            estudiante::class,
-            MateriaEstudianteSemestre::class,
-            'id',
-            'id',
-            'materia_estudiante_semestre_id',
-            'estudiante_id'
-        );
+        return $this->belongsTo(estudiante::class, 'estudiante_id');
     }
 
     /**

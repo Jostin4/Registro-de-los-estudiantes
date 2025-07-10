@@ -13,15 +13,19 @@ class NotaController extends Controller
     // Mostrar todas las notas
     public function index()
     {
-        $notas = Nota::with(['evaluacion.materia', 'evaluacion.semestre', 'estudiante'])
+        // Filtrar solo notas que tienen evaluación asociada
+        $notas = Nota::with(['evaluacion.materia.semestres.carreras', 'evaluacion.semestre', 'estudiante'])
+            ->whereHas('evaluacion') // Solo notas con evaluación válida
             ->orderBy('created_at', 'desc')
             ->paginate(20);
         
+        // Estadísticas solo de notas válidas
         $estadisticas = [
-            'total_notas' => Nota::count(),
-            'promedio_general' => Nota::avg('nota') ?? 0,
-            'notas_aprobadas' => Nota::where('nota', '>=', 50)->count(),
-            'notas_reprobadas' => Nota::where('nota', '<', 50)->count(),
+            'total_notas' => Nota::whereHas('evaluacion')->count(),
+            'promedio_general' => Nota::whereHas('evaluacion')->avg('nota') ?? 0,
+            'notas_aprobadas' => Nota::whereHas('evaluacion')->where('nota', '>=', 50)->count(),
+            'notas_reprobadas' => Nota::whereHas('evaluacion')->where('nota', '<', 50)->count(),
+            'notas_huérfanas' => Nota::whereDoesntHave('evaluacion')->count(), // Notas sin evaluación
         ];
         
         return view('notas.index', compact('notas', 'estadisticas'));

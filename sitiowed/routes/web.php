@@ -15,9 +15,14 @@ use App\Http\Controllers\carrerasController;
 use App\Http\Controllers\estudiantesController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\MomentoAcademicoController;
+use App\Http\Controllers\ProfileController;
 
+// Redirigir la página principal al dashboard si está autenticado, sino al login
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('loginView');
 });
 
 // Rutas de autenticación
@@ -32,9 +37,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Gestión de profesores
     Route::get('/profesores', [\App\Http\Controllers\ProfesorController::class, 'index'])->name('profesores.index');
     Route::get('/profesores/create', [\App\Http\Controllers\ProfesorController::class, 'create'])->name('profesores.create');
+    Route::get('/profesores/{profesor}', [\App\Http\Controllers\ProfesorController::class, 'show'])->name('profesores.show');
     Route::post('/profesores', [\App\Http\Controllers\ProfesorController::class, 'store'])->name('profesores.store');
     Route::get('/profesores/{profesor}/edit', [\App\Http\Controllers\ProfesorController::class, 'edit'])->name('profesores.edit');
     Route::put('/profesores/{profesor}', [\App\Http\Controllers\ProfesorController::class, 'update'])->name('profesores.update');
+    Route::post('/profesores/{profesor}/change-password', [\App\Http\Controllers\ProfesorController::class, 'changePassword'])->name('profesores.change-password');
     Route::delete('/profesores/{profesor}', [\App\Http\Controllers\ProfesorController::class, 'destroy'])->name('profesores.destroy');
     Route::get('/profesores/{profesor}/materias', [\App\Http\Controllers\ProfesorController::class, 'materias'])->name('profesores.materias');
     Route::post('/profesores/{profesor}/materias', [\App\Http\Controllers\ProfesorController::class, 'asignarMaterias'])->name('profesores.asignarMaterias');
@@ -143,6 +150,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+    
+    // Rutas de perfil y configuración
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'profile'])->name('profile');
+        Route::put('/update', [ProfileController::class, 'updateProfile'])->name('update');
+        Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
+        Route::post('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
+        Route::post('/update-notifications', [ProfileController::class, 'updateNotifications'])->name('update-notifications');
+    });
 });
 
 // Ruta para obtener semestres por materia (API)

@@ -151,6 +151,11 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
+                                    <a href="{{ route('profesores.show', $profesor->id) }}" 
+                                       class="text-indigo-600 hover:text-indigo-900 p-1 rounded-md hover:bg-indigo-50 transition-colors duration-200"
+                                       title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     <a href="{{ route('profesores.materias', $profesor->id) }}" 
                                        class="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
                                        title="Asignar materias">

@@ -1,16 +1,16 @@
 @extends('layouts.app.layout')
 
-@section('title', 'Dashboard')
+@section('title', 'Dashboard - Sistema Académico')
 @section('page-title', 'Dashboard')
 
 @section('content')
     <div class="space-y-6">
         <!-- Header del dashboard -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-                    <p class="text-gray-600 mt-1">
+                    <h1 class="text-3xl font-bold">¡Bienvenido, {{ auth()->user()->name }}!</h1>
+                    <p class="text-indigo-100 mt-2 text-lg">
                         @if(auth()->user()->role === 'admin')
                             Panel de administración del sistema académico
                         @elseif(auth()->user()->role === 'profesor')
@@ -21,10 +21,98 @@
                             Bienvenido al sistema de gestión académica
                         @endif
                     </p>
+                    <p class="text-indigo-200 mt-1">{{ now()->format('l, d \d\e F Y') }}</p>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
-                    <span class="text-sm text-gray-500">Sistema Activo</span>
+                <div class="flex items-center space-x-3">
+                    <div class="w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-indigo-100 font-medium">Sistema Activo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notificaciones y Alertas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Notificaciones -->
+            <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-bell text-yellow-500 mr-2"></i>
+                    Notificaciones Recientes
+                </h2>
+                <div class="space-y-3">
+                    @if(auth()->user()->role === 'admin')
+                        <div class="flex items-start p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-blue-900">Sistema Actualizado</p>
+                                <p class="text-xs text-blue-700">El sistema ha sido actualizado con nuevas funcionalidades</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-green-900">Respaldo Completado</p>
+                                <p class="text-xs text-green-700">El respaldo de la base de datos se completó exitosamente</p>
+                            </div>
+                        </div>
+                    @elseif(auth()->user()->role === 'profesor')
+                        <div class="flex items-start p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-yellow-900">Evaluaciones Pendientes</p>
+                                <p class="text-xs text-yellow-700">Tienes evaluaciones que requieren calificación</p>
+                            </div>
+                        </div>
+                    @elseif(auth()->user()->role === 'estudiante')
+                        <div class="flex items-start p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                            <i class="fas fa-calendar-alt text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-blue-900">Período de Inscripción</p>
+                                <p class="text-xs text-blue-700">El período de inscripción para el próximo semestre está abierto</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Acceso Rápido -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-bolt text-purple-500 mr-2"></i>
+                    Acceso Rápido
+                </h2>
+                <div class="space-y-3">
+                    @if(auth()->user()->role === 'admin')
+                        <a href="{{ route('estudiantes.create') }}" class="flex items-center p-3 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
+                            <i class="fas fa-user-plus text-indigo-600 mr-3"></i>
+                            <span class="text-sm font-medium text-indigo-900">Nuevo Estudiante</span>
+                        </a>
+                        <a href="{{ route('profesores.create') }}" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="fas fa-chalkboard-teacher text-green-600 mr-3"></i>
+                            <span class="text-sm font-medium text-green-900">Nuevo Profesor</span>
+                        </a>
+                        <a href="{{ route('materias.create') }}" class="flex items-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                            <i class="fas fa-book text-purple-600 mr-3"></i>
+                            <span class="text-sm font-medium text-purple-900">Nueva Materia</span>
+                        </a>
+                    @elseif(auth()->user()->role === 'profesor')
+                        <a href="{{ route('evaluaciones.index') }}" class="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="fas fa-tasks text-blue-600 mr-3"></i>
+                            <span class="text-sm font-medium text-blue-900">Mis Materias</span>
+                        </a>
+                        <a href="{{ route('notas.index') }}" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="fas fa-chart-bar text-green-600 mr-3"></i>
+                            <span class="text-sm font-medium text-green-900">Cargar Notas</span>
+                        </a>
+                    @elseif(auth()->user()->role === 'estudiante')
+                        <a href="{{ route('estudiante.dashboard') }}" class="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                            <span class="text-sm font-medium text-blue-900">Mis Cursos</span>
+                        </a>
+                        <a href="{{ route('estudiante.notas') }}" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="fas fa-chart-line text-green-600 mr-3"></i>
+                            <span class="text-sm font-medium text-green-900">Mis Notas</span>
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

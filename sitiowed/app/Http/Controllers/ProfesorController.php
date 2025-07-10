@@ -23,6 +23,13 @@ class ProfesorController extends Controller
         return view('profesores.create');
     }
 
+    // Mostrar detalles del profesor
+    public function show($id)
+    {
+        $profesor = Profesor::with(['user', 'materias'])->findOrFail($id);
+        return view('profesores.show', compact('profesor'));
+    }
+
     // Guardar nuevo profesor y usuario asociado
     public function store(Request $request)
     {
@@ -89,17 +96,36 @@ class ProfesorController extends Controller
             'apellido' => 'required|string|max:255',
         ]);
 
+        // Actualizar información del usuario
         $profesor->user->update([
             'name' => $request->name,
             'email' => $request->email,
         ]);
 
+        // Actualizar información del profesor
         $profesor->update([
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
         ]);
 
-        return redirect()->route('profesores.index')->with('success', 'Profesor actualizado correctamente');
+        return redirect()->route('profesores.edit', $profesor->id)->with('success', 'Profesor actualizado correctamente');
+    }
+
+    // Cambiar contraseña del profesor
+    public function changePassword(Request $request, $id)
+    {
+        $profesor = Profesor::with('user')->findOrFail($id);
+        
+        $request->validate([
+            'current_password' => 'required|current_password',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $profesor->user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return redirect()->route('profesores.edit', $profesor->id)->with('success', 'Contraseña cambiada correctamente');
     }
 
     // Eliminar profesor

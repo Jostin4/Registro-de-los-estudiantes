@@ -30,6 +30,23 @@
             </div>
         @endif
 
+        @if(isset($estadisticas['notas_huérfanas']) && $estadisticas['notas_huérfanas'] > 0)
+            <div class="mb-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6 shadow-sm">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-yellow-800">Notas sin evaluación</h3>
+                        <p class="text-yellow-700">
+                            Se encontraron {{ $estadisticas['notas_huérfanas'] }} notas que no tienen una evaluación asociada. 
+                            Estas notas pueden haberse quedado huérfanas después de eliminar evaluaciones.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Estadísticas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -162,10 +179,14 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">
-                                                {{ $nota->evaluacion->materia->nombre ?? 'N/A' }}
+                                                @if($nota->evaluacion && $nota->evaluacion->materia)
+                                                    {{ $nota->evaluacion->materia->nombre }}
+                                                @else
+                                                    <span class="text-red-500">Evaluación eliminada</span>
+                                                @endif
                                             </div>
                                             <div class="text-sm text-gray-500">
-                                                @if($nota->evaluacion->materia->semestres->count() > 0)
+                                                @if($nota->evaluacion && $nota->evaluacion->materia && $nota->evaluacion->materia->semestres->count() > 0)
                                                     @php
                                                         $carreras = $nota->evaluacion->materia->semestres->flatMap(function($semestre) {
                                                             return $semestre->carreras;
@@ -179,15 +200,27 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">
-                                                {{ $nota->evaluacion->semestre->nombre ?? 'N/A' }}
+                                                @if($nota->evaluacion && $nota->evaluacion->semestre)
+                                                    {{ $nota->evaluacion->semestre->nombre }}
+                                                @else
+                                                    <span class="text-red-500">N/A</span>
+                                                @endif
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">
-                                                {{ $nota->evaluacion->nombre ?? 'N/A' }}
+                                                @if($nota->evaluacion)
+                                                    {{ $nota->evaluacion->nombre }}
+                                                @else
+                                                    <span class="text-red-500">Evaluación eliminada</span>
+                                                @endif
                                             </div>
                                             <div class="text-sm text-gray-500">
-                                                {{ $nota->evaluacion->tipo ?? 'Sin tipo' }}
+                                                @if($nota->evaluacion)
+                                                    {{ $nota->evaluacion->tipo ?? 'Sin tipo' }}
+                                                @else
+                                                    N/A
+                                                @endif
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
